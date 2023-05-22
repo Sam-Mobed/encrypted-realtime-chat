@@ -1,7 +1,8 @@
 const express = require('express');
-const mongoose = require('mongoose'); //the connection is established once here, and reused throughout application
 const userCollection = require('./schemas/User');
 const signupRouter = require('./routes/SignUp');
+const { connect, disconnect } = require('./connectDB');
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -16,17 +17,7 @@ app.use(express.json({ limit: "100mb"}));
 app.use(express.urlencoded({extended:false})); //this parses URL-encoded data from incoming requests
 //NOTE: we have to make sure this doesn't conflict with encryption later
 
-//start off with a local database, later we will move it to mongoDB atlas
-const url = 'mongodb://localhost:27017/chatDatabase';
-
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-.then(() => {
-    console.log('Connected to MongoDB');
-    // Start your server or perform any other setup
-})
-.catch((error) => {
-    console.error('Failed to connect to MongoDB: ', error);
-});
+connect().catch(console.dir); //connect to the MongoDB Atlas database
 
 //on index you have the login page.
 app.get("/", (req,res) => {
@@ -52,17 +43,7 @@ app.listen(port, () => {
     console.log(`Listening on port ${port}...`);
 });
 
-process.on('SIGINT', () => {
-    try {
-        mongoose.connection.close(() => {   
-            console.log('MongoDB connection closed.');
-            process.exit(0);
-        });
-    } catch (error){
-        console.error('Error closing MongoDB connection: ', error);
-        process.exit(1);
-    }
-});
+process.on('SIGINT', disconnect);
 
 //npm run dev: to run with dev, will automatially restart server after each save.
 //you can try out the API with postman or Insomnia

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require('mongoose');
-const userCollection = require('./schemas/User');
+const userCollection = require('../schemas/User');
 
 function checkPassword(password){
     if (password.length<10){
@@ -30,6 +30,18 @@ router.get("/", (req,res) => {
 
     if (existingUser){
         res.status(400).send("Username already exists. Please choose a new one");
+        return;
+    }
+
+    const checkPword = checkPassword(req.body.password);
+    const checkUname = checkUsername(req.body.username);
+
+    if (!checkUname){
+        res.status(400).send("Username did not meet requirements");
+        return;
+    }else if(!checkPword){
+        res.status(400).send("Password did not meet requirements");
+        return;
     }
 
     const newUser = {
@@ -37,24 +49,14 @@ router.get("/", (req,res) => {
         password: req.body.password,
     };
 
-    const checkPword = checkPassword(req.body.password);
-    const checkUname = checkUsername(req.body.username);
-
-    if (!checkUname){
-        res.status(400).send("Username did not meet requirements");
-    }else if(!checkPword){
-        res.status(400).send("Password did not meet requirements");
-    }
-
     //the eventListener we added in signup.js should prevent the user from inputing two different passwords
     try{
-        await userCollection.insertOne(newUser); 
+        await userCollection.insertMany([newUser]); 
         res.status(200).send("User created successfully."); //instead of send we have to redirect user to his homepage
     } catch (error){
         console.error("Error creating user: ", error); 
         res.status(500).send("Server error occurred");
     }
-    
 });
 //what we can do is check if username already exists, then we return an error
 //once the user has been added to the database, we send him to /userName/chatRooms
