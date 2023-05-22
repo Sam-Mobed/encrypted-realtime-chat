@@ -1,3 +1,9 @@
 *update the package.json file with proper information
 https://github.com/AdamAlAttrach/digital-moment/blob/main/package.json 
 
+
+dynamic template through EJS template engine
+bootstrap for styling
+node.js express
+mongoDB -> mongoose
+JWT and crystals kyber

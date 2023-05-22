@@ -1,23 +1,30 @@
 const express = require("express");
+const signupRouter = require('./routes/SignUp');
 
 const app = express();
 
 //first try with the env variable, if for some reason it isn't valid go with 3000
 const port = process.env.port || 3000;
+//since we are writing all our views with ejs, view engine converts that code to html
+app.set('view engine', 'ejs');
 
 //we set a limit on the size of the JSON payload that can be parsed by middleware
 //this also makes it so any incoming JSOn request can be parsed and made available in req.body
 app.use(express.json({ limit: "100mb"}));
 
-//how do we force them to authenticate
+//on index you have the login page.
 app.get("/", (req,res) => {
-    res.status(200).send("Welcome to secure REST API");
+    res.status(200).render('index');
 });
 
-const loginRouter = require("./routes/login");
+app.use('/signup', signupRouter);
+
+//if the user is not in the DB, he has to signup, so he is sent to /signUp
+
+//const loginRouter = require("./routes/login");
 
 
-app.use("/api/login", loginRouter);
+//app.use("/api/login", loginRouter);
 
 
 app.listen(port, () => {
