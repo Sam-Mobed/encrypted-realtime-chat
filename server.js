@@ -43,7 +43,7 @@ app.get("/", (req,res) => {
     if (user.length===0){
         res.status(400).send("No user was found with this username. Try again or sign up.");
     }else{
-        if(user.password===req.body.password){
+        if(user[0].password===req.body.password){
             res.status(200).send("User authorized."); //if it works redirect him to homepage instead
         } else {
             res.status(400).send("Wrong Password");
