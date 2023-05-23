@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router({ mergeParams: true}); //mergeParams should give me access to :username from the parent router
 const checkPassword = require('./SignUp');
 const Chatroom = require('../schemas/Chatroom');
+const Users = require('../schemas/User');
 
 router.use(express.json({ limit: "100mb"})); //once again not sure why these are necessary inside any other file but server.js
 router.use(express.urlencoded({extended:false}));
@@ -21,6 +22,7 @@ router.get('/', async (req,res) => {
         res.status(400).send('Password does not meet requirements');
         return;
     }
+    //GOT TO MAKE SURE THE CHATROOM HAS A UNIQUE NAME
 
     const invited = req.body.invited; //this is a string, where each username is separated by a space
     const invitedParsed = invited.split(/\s+/); //split the string into an array of usernames.
@@ -30,21 +32,29 @@ router.get('/', async (req,res) => {
     //we need to make a request schema for every user in invitedParsed and pass it to chatroom
     //we use a for...of.. loop instead of forEach, because forOf supports await keyword
     //i think this will cause problems
-    for (const user of invitedParsed) {
-        let newRequest = await Request.create({
-            from: req.body.name,
-            recipient: user,
-        });
-        requestArray.push(newRequest);
-    }
-    //am I properly storing the reference to a user? 
+    
+    //am I properly storing the reference to a user?
+    const creator = await Users.findOne({ username: req.params.username}).select('_id').exec();
+    
     const newRoom = await Chatroom.create({
         name: req.body.name,
         password: req.body.password,
-        sentRequests: requestArray,
-        members: [req.params.username],
-        admin: req.params.username,
+        members: [creator._id],
+        admin: creator._id,
     });
+
+    for (const user of invitedParsed) {
+        const userId = await Users.findOne({ username: user}).select('_id').exec();
+        const newRequest = await Request.create({
+            from: newRoom._id,
+            recipient: userId,
+        });
+        requestArray.push(newRequest);
+    }
+
+    await newRoom.sentRequests.set(requestArray);
+    //newRoom.save();
+    //I'm not sure this is the proper way to save the array.
 
     //now we send text, but we should be redirecting the user to the new room
     res.status(200).res('Room created successfully.');

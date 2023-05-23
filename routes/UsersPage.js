@@ -25,10 +25,23 @@ router.get('/:username', async (req,res) => {
     //the user enters the name and password of a server to try and join
     //how to accept requests?
     const chatroom = await Chatroom.findOne({ name: req.body.name}).exec();
+
+    //AFTER MAKING SURE CHATROOM HAS A UNIQUE NAME, MAKE SURE THE ABOVE LINE DOESN'T RETURN NULL
+
+    if (chatroom==null) res.status(400).send('No such chatroom');
+
+
     if (chatroom.password===req.body.password){
-        const user = await Users.findOne({ username: req.params.username}).exec(); 
-        chatroom.members.push(user); //am i properly pushing a reference to the database, and not something else?
-        chatroom.save(); //could be in a try catch but wtv. 
+        const userId = await Users.findOne({ username: req.params.username}).select('_id').exec(); 
+        chatroom.members.push(userId); //am i properly pushing a reference to the database, and not something else?
+        
+        try{
+            await chatroom.save();
+        } catch (error){
+            console.log('Failed to save chatroom.');
+            res.status(500);
+        }
+
         res.status(200).send('User added to the chatroom.'); //this should either be a redirect or a success pop up
     }else{
         res.status(400).send('Wrong password.');
