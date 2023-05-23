@@ -60,6 +60,7 @@ router.get("/", (req,res) => {
 //inside that dynamic route, we will check the chatRooms of the new user, which should be empty, so nothing is shown
 
 module.exports = router;
+module.exports = checkPassword;
 
 //const mongoose
 

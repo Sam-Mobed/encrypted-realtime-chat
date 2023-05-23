@@ -11,7 +11,7 @@ router.use("/:username/createRoom", createRouter); //to handle requests at that 
 router.get('/:username', async (req,res) => {
     try {
         const user = await Users.findOne({ username: req.params.username}).exec(); //since we use findOne instead of find, shouldn't return an array here
-
+        //not sure whether these are passed properly
         const chatrooms = user.chatrooms; //will i be to properly access the fields of chatroom inside ejs?
         const requests = user.requests; //both of these are arrays
         const url = `http://localhost:3000/users/${req.params.username}`; //used twice, make sure it works for both in ejs view

@@ -16,12 +16,12 @@
         <form action="<%= `${url}/createRoom` %>" method="post">
             <div class="form-group">
                 <label for="title">Name of your Chatroom</label>
-                <input type="text" name="name" id="name" class="form-control">
+                <input type="text" name="name" id="name" class="form-control" required>
             </div>
 
             <div class="form-group">
-                <label for="title">Please set a password</label>
-                <input type="password" name="password" id="password" class="form-control">
+                <label for="title">Please set a password, note that it must contain one digit and one special character</label>
+                <input type="password" name="password" id="password" class="form-control" required>
             </div>
 
             <div class="form-group">
