@@ -75,16 +75,8 @@ const chatroomSchema = new mongoose.Schema({
     }
 });
 
-//add schema methods:
-//chatroom: remove all sent requests.
-chatroomSchema.methods.clearRequests = function(){
-    try{
-        this.sentRequests=[];
-        this.save();
-        console.log("Requests have been cleared.");
-    }catch (error){
-        console.log("Could not clear requests: ", error);
-    }
-}
+//I don't need to make custom schema methods. the operations that I want to do:
+//clearning requests, adding member, all can be done through mongoose queries.
 
 module.exports = mongoose.model("Chatroom", chatroomSchema);
+module.exports = mongoose.model("Request", requestSchema);

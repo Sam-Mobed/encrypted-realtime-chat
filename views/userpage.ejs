@@ -24,7 +24,7 @@
                         <%= chatroom.admin %>
                     </div>
                     <a href="">Start Chatting</a>
-                    <button>Leave Room</button>
+                    <button onclick="leaveRoom('<% `${url}?` %>')">Leave Room</button>
                 </div>
             </div>
         <% }) %>
@@ -60,5 +60,16 @@
             <a href="<%= `${url}/createPage` %>">Create a Chatroom</a>
         </div>
     </div>
+
+    <script>
+        function leaveRoom(url, roomName){
+            fetch(url, {
+                method: 'DELETE',
+                body: {
+                    roomname: roomName,
+                },
+            });
+        }
+    </script>
 </body>
 </html>
