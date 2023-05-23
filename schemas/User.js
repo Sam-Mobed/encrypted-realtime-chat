@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
     ],
     accountCreatedAt: {
         type: Date,
-        defualt: () => Date.now(),
+        defualt: new Date(),
     },
 });
 //requests: alternatively, there are no requests, user can join a room with a password. optional: passwords can be whispered. 

@@ -8,7 +8,7 @@ const messageSchema = new mongoose.Schema({
     },
     sentAt: {
         type: Date,
-        defualt: () => Date.now(),
+        defualt: new Date(),
     },
     content: {
         type: String,
@@ -35,7 +35,7 @@ const chatroomSchema = new mongoose.Schema({
     logs: [messageSchema],
     CreatedAt: {
         type: Date,
-        defualt: () => Date.now(),
+        defualt: new Date(),
     },
     sentRequests: [
         {

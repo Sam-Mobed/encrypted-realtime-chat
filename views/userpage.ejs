@@ -18,7 +18,7 @@
                 <div class="card-body">
                     <h4 class="card-title"> <%= chatroom.name %> </h4>
                     <div class="card-subtitle text-muted mb-2"> 
-                        <%= chatroom.createdAt %>
+                        <%= chatroom.createdAt.toLocaleDateString() %>
                     </div>
                     <div class="card-subtitle text-muted mb-2"> 
                         <%= chatroom.admin %>

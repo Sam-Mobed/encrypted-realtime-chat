@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Users = require('../schemas/User');
+const createRouter = require('./createRoom');
 
 //I guess i need these? logically they should only be on server.js but w/o them here it might not work.
-app.use(express.json({ limit: "100mb"}));
-app.use(express.urlencoded({extended:false}));
+router.use(express.json({ limit: "100mb"}));
+router.use(express.urlencoded({extended:false}));
+router.use("/:username/createRoom", createRouter); //to handle requests at that endpoint somewhere else.
 
 router.get('/:username', async (req,res) => {
     try {
