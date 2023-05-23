@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Room</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" 
+    integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">New Chatroom</h1>
+
+        <form action="<%= `${url}/createRoom` %>" method="post">
+            <div class="form-group">
+                <label for="title">Name of your Chatroom</label>
+                <input type="text" name="name" id="name" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="title">Please set a password</label>
+                <input type="password" name="password" id="password" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="requests">Add other users to your chatroom</label>
+                <input type="text" name="invited" id="invited" class="form-control">
+            </div>
+
+            <a href="<%= `${url}` %>" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-success">Create</button>
+        </form>
+        
+    </div>
+    
+</body>
+</html>

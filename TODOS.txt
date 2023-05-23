@@ -16,3 +16,5 @@ i know it's called secure rest API but it's not an api it's an app i changed my 
 [user]/[chatroom]
 [user]/[chatroom]/cha
 /:user/createchatroom
+
+make sure only necessary operations are async (doesnt really matter, should still work as expected)
