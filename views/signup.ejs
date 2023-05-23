@@ -5,18 +5,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" 
+    integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 </head>
 <body>
-    <div>
-        <h2>Sign Up</h2>
-        <form id="signupForm" action="/signup" method="post">
-            <p>Your username should be at least 6 characters long.</p>
-            <p>Your password should be at least 10 characters, with one special character and one digit.</p>
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" id="password" placeholder="Password" required>
-            <input type="password" name="confirmedPassword" id="confirmedPassword" placeholder="Confirmed Password" required>
-            <input type="submit" value="Submit">
-        </form>
+    <div class="container" style="display: flex; justify-content: center; align-items: center; height: 100vh; width:300px;">
+        <div class="row justify-content-center" style="max-width: 500px; padding: 20px;">
+            <h2>Sign Up</h2>
+            <form id="signupForm" action="/signup" method="post">
+                <li>Your username should be at least 6 characters long.</li>
+                <li style="padding-bottom: 10px;">Your password should be at least 10 characters, with one special character and one digit.</li>
+                
+                <div class="form-group">
+                    <input type="text" name="username" placeholder="Username" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" name="password" id="password" placeholder="Password" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" name="confirmedPassword" id="confirmedPassword" placeholder="Confirmed Password" required>
+                </div>
+            
+                <input type="submit" value="Submit" class="btn btn-success">
+            </form>
+        </div>
     </div>
 
     <script>
