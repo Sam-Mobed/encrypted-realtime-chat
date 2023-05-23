@@ -1,5 +1,6 @@
 *update the package.json file with proper information
 https://github.com/AdamAlAttrach/digital-moment/blob/main/package.json 
+*got to make sure user gets redirected to a route, and doesn't just type it in browser URL
 
 
 dynamic template through EJS template engine
@@ -7,3 +8,10 @@ bootstrap for styling
 node.js express
 mongoDB -> mongoose
 JWT and crystals kyber
+
+i know it's called secure rest API but it's not an api it's an app i changed my mind mid way
+
+/:user/:chatrooms
+[user]/userPage
+[user]/[chatroom]
+[user]/[chatroom]/cha
