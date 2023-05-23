@@ -12,9 +12,9 @@
         <form id="signupForm" action="/signup" method="post">
             <p>Your username should be at least 6 characters long.</p>
             <p>Your password should be at least 10 characters, with one special character and one digit.</p>
-            <input type="text" name="username" placeholder="Username">
-            <input type="password" name="password" id="password" placeholder="Password">
-            <input type="password" name="confirmedPassword" id="confirmedPassword" placeholder="Confirmed Password">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <input type="password" name="confirmedPassword" id="confirmedPassword" placeholder="Confirmed Password" required>
             <input type="submit" value="Submit">
         </form>
     </div>

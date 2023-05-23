@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require('mongoose');
-const userCollection = require('../schemas/User');
+const Users = require('../schemas/User');
+
+router.use(express.json());
+router.use(express.urlencoded({ extended: false }));
 
 function checkPassword(password){
     if (password.length<10){
@@ -25,37 +27,32 @@ router.get("/", (req,res) => {
         res.status(500).send("Server side error");
     }
 }).post("/", async (req,res) => {
+    const existingUser = await Users.find({ username: req.body.username}).exec();
 
-    const existingUser = await userCollection.findOne({username: req.body.username}); //we can't have this as await
-
-    if (existingUser){
+    if (existingUser.length!==0){
         res.status(400).send("Username already exists. Please choose a new one");
-        return;
-    }
+    } else {
+        const checkPword = checkPassword(req.body.password);
+        const checkUname = checkUsername(req.body.username);
 
-    const checkPword = checkPassword(req.body.password);
-    const checkUname = checkUsername(req.body.username);
-
-    if (!checkUname){
-        res.status(400).send("Username did not meet requirements");
-        return;
-    }else if(!checkPword){
-        res.status(400).send("Password did not meet requirements");
-        return;
-    }
-
-    const newUser = {
-        username: req.body.username,
-        password: req.body.password,
-    };
-
-    //the eventListener we added in signup.js should prevent the user from inputing two different passwords
-    try{
-        await userCollection.insertMany([newUser]); 
-        res.status(200).send("User created successfully."); //instead of send we have to redirect user to his homepage
-    } catch (error){
-        console.error("Error creating user: ", error); 
-        res.status(500).send("Server error occurred");
+        if (!checkUname){
+            res.status(400).send("Username did not meet requirements");
+        }else if(!checkPword){
+            res.status(400).send("Password did not meet requirements");
+        }else{
+            //the eventListener we added in signup.js should prevent the user from inputing two different passwords
+            
+            try{        
+                const newUser = await Users.create({
+                    username: req.body.username,
+                    password: req.body.password,
+                });
+                res.status(200).send("User created successfully."); //instead of send we have to redirect user to his homepage
+            } catch (error){
+                console.error("Error creating user: ", error); 
+                res.status(500).send("Server error occurred");
+            }
+        }
     }
 });
 //what we can do is check if username already exists, then we return an error
