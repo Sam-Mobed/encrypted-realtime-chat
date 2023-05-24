@@ -11,12 +11,12 @@ const port = process.env.port || 3000;
 //since we are writing all our views with ejs, view engine converts that code to html
 app.set('view engine', 'ejs');
 app.use("/signup", signupRouter);
-//app.use("/users", userPage);
+app.use("/users", userPage);
 //we set a limit on the size of the JSON payload that can be parsed by middleware
 //this also makes it so any incoming JSOn request can be parsed and made available in req.body
 app.use(express.json({ limit: "100mb"}));
 app.use(express.urlencoded({extended:false})); //this parses URL-encoded data from incoming requests
-//NOTE: we have to make sure this doesn't conflict with encryption later
+//NOTE: we have to make sure this doesn't conflict with encryption later.
 
 //connect to MongoDB Atlas Server
 mongoose.connect("mongodb+srv://masdebom:secure12pass13@myapps.vcsyakz.mongodb.net/?retryWrites=true&w=majority", {

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({ mergeParams: true}); //mergeParams should give me access to :username from the parent router
 const Chatroom = require('../schemas/Chatroom');
 const Users = require('../schemas/User');
-const Requests = require('../schemas/Chatroom');
+const Requests = require('../schemas/Request');
 
 //this function should be middleware, it's used in multiple files. keep it like this for now.
 function checkPassword(password){
@@ -42,7 +42,6 @@ router.get('/', async (req,res) => {
     const invitedParsed = invited.split(/\s+/); //split the string into an array of usernames.
     //invited isn't a required field, so user doesn't need to send requests at the beginning.
     
-    const requestArray = []; 
     //we need to make a request schema for every user in invitedParsed and pass it to chatroom
     //we use a for...of.. loop instead of forEach, because forOf supports await keyword
     //i think this will cause problems
@@ -56,24 +55,28 @@ router.get('/', async (req,res) => {
         members: [creatorId],
         admin: creatorId,
     });
-    
-    for (const user of invitedParsed) {
-        const userId = await Users.findOne({ username: user}).select('_id').exec();
-        const newRequest = await Requests.create({
-            from: newRoom._id,
-            recipient: userId,
-        });
-        requestArray.push(newRequest);
+
+    if (invitedParsed.length!==0){
+        for (const user of invitedParsed) {
+            const thisuser = await Users.findOne({ username: user}).exec();
+            if (thisuser == null){
+                continue; //ignore the fact that user can send requests to non-existing people
+            }
+            //we can't use newRoom._id yet, as it isn't generated yet, so just use the room's name
+            const newRequest = await Requests.create({
+                from: newRoom._id,
+                recipient: thisuser._id,
+            });
+            //save each  of these requests inside User's requests
+            newRoom.sentRequests.push(newRequest);
+            thisuser.requests.push(newRequest);
+            await thisuser.save();
+        }
     }
-    
-    //in a real app we would have to check if the users actually exist. 
-
-    await newRoom.sentRequests.set(requestArray);
+    //in a real app we would have to check if the users actually exist, or if multiple requests are sent to the same user 
     await newRoom.save();
-    //I'm not sure this is the proper way to save the array.
-
     //now we send text, but we should be redirecting the user to the new room
-    res.status(200).res('Room created successfully.');
+    res.status(200).send('Room created successfully.');
 });
 
 module.exports = router;

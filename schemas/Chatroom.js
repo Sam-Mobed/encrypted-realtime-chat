@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const Users = require('./User');
+const Users = require('./User'); //not sure it's necessary to import when linking references 
+const Requests = require('./Request'); //but keep them for now
 
 const messageSchema = new mongoose.Schema({
     sender: {
@@ -25,29 +26,6 @@ const messageSchema = new mongoose.Schema({
     },
 });
 
-const requestSchema = new mongoose.Schema({
-    from: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: 'Chatroom',
-        required: true,
-        immutable: true,
-    },
-    recipient: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: 'Users',
-        required: true,
-        immutable: true,
-    },
-    status: {
-        type: Boolean,
-        default: false,
-    },
-    issuedAt: {
-        type: Date,
-        default: new Date(),
-    },
-});
-
 const chatroomSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -62,7 +40,12 @@ const chatroomSchema = new mongoose.Schema({
         type: Date,
         default: new Date(),
     },
-    sentRequests: [requestSchema],
+    sentRequests: [
+        {
+            type: mongoose.SchemaTypes.ObjectId,
+            ref: 'Requests',
+        }
+    ],
     members: [
         {
             type: mongoose.SchemaTypes.ObjectId,
@@ -81,4 +64,3 @@ const chatroomSchema = new mongoose.Schema({
 //clearning requests, adding member, all can be done through mongoose queries.
 
 module.exports = mongoose.model("Chatroom", chatroomSchema);
-module.exports = mongoose.model("Requests", requestSchema);
