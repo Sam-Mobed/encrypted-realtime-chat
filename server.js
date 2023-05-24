@@ -11,7 +11,7 @@ const port = process.env.port || 3000;
 //since we are writing all our views with ejs, view engine converts that code to html
 app.set('view engine', 'ejs');
 app.use("/signup", signupRouter);
-app.use("/users", userPage);
+//app.use("/users", userPage);
 //we set a limit on the size of the JSON payload that can be parsed by middleware
 //this also makes it so any incoming JSOn request can be parsed and made available in req.body
 app.use(express.json({ limit: "100mb"}));
@@ -72,3 +72,4 @@ process.on('SIGINT', () => {
 //npm run dev: to run with dev, will automatially restart server after each save.
 //you can try out the API with postman or Insomnia
 //there is also the rest client extension for visual studio code
+//

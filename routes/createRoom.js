@@ -1,9 +1,17 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true}); //mergeParams should give me access to :username from the parent router
-const checkPassword = require('./SignUp');
 const Chatroom = require('../schemas/Chatroom');
 const Users = require('../schemas/User');
 const Requests = require('../schemas/Chatroom');
+
+//this function should be middleware, it's used in multiple files. keep it like this for now.
+function checkPassword(password){
+    if (password.length<10){
+        return false;
+    }
+    const regex = /(?=.*\d)(?=.*[\W])/; // Lookahead assertions for digit and special character
+    return regex.test(password);
+}
 
 router.use(express.json({ limit: "100mb"})); //once again not sure why these are necessary inside any other file but server.js
 router.use(express.urlencoded({extended:false}));

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Chatroom = require('./Chatroom');
+const Requests = require('./Chatroom');
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     requests: [
         {
             type: mongoose.SchemaTypes.ObjectId,
-            ref: 'Chatroom',
+            ref: 'Requests',
         }
     ],
     chatrooms: [

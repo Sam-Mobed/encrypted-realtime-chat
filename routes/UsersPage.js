@@ -21,7 +21,7 @@ router.get('/:username', async (req,res) => {
     } catch (e) {
         res.status(500).send("Server side error");
     }
-}).post(async (req,res) => {
+}).post('/:username', async (req,res) => {
     //the user enters the name and password of a server to try and join
     //how to accept requests?
     const chatroom = await Chatroom.findOne({ name: req.body.name}).exec();
