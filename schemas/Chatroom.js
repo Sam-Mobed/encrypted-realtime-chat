@@ -19,7 +19,7 @@ const messageSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    update: {
+    isUpdated: {
         type: Boolean,
         default: false,
     },
@@ -58,9 +58,9 @@ const chatroomSchema = new mongoose.Schema({
         required: true,
     },
     logs: [messageSchema],
-    CreatedAt: {
+    createdAt: {
         type: Date,
-        defualt: new Date(),
+        default: new Date(),
     },
     sentRequests: [requestSchema],
     members: [
@@ -74,9 +74,11 @@ const chatroomSchema = new mongoose.Schema({
         ref: 'Users',
     }
 });
+//for the request schema, instead of a boolean, should use another data structure to represent sent, declined, accepted
+//and if a user already received a request, we can't send another one. 
 
 //I don't need to make custom schema methods. the operations that I want to do:
 //clearning requests, adding member, all can be done through mongoose queries.
 
 module.exports = mongoose.model("Chatroom", chatroomSchema);
-module.exports = mongoose.model("Request", requestSchema);
+module.exports = mongoose.model("Requests", requestSchema);
