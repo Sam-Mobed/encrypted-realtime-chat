@@ -32,3 +32,27 @@ schemas should have validation functions
 there should be cleanup for the database, so chatrooms with no members and no admins get deleted off the database.
 
 there should probably be a proper logging system. 
+
+we're using traditional http requests for the first few pages, which are outdated and can be optimized by changing to 
+new protocols.
+
+
+to create the realtime chat:
+web sockets is a protocol that allows us to have bidirectional communication. like an open door between your client and 
+your server, you don't have to do refresh like traditional http requests (that we used for login/signup/homepage) 
+
+WebSocket is a communication protocol that provides full-duplex communication channels over a single TCP connection. 
+It enables bidirectional communication between a client and a server, allowing real-time data transfer.
+
+npm i socket.io (framework for dealing with websockets)
+also moment to format date and time(not sure it'll be necessary)
+
+so until now we used:
+mongoDB
+mongoDB atlas
+mongoose
+express.js node.js
+ejs for template rendering on the front endpoint
+JWT
+crystals kyber + AES + normal hashing(with salt) for passwords and logs
+socket.io

@@ -1,11 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const methodOverride = require('method-override');
+const http = require('http'); //this is actually used by express under the hood, but we need to use it directly in order to use socket.io 
+const socketio = require('socket.io');
 const Users = require('./schemas/User');
 const signupRouter = require('./routes/SignUp');
 const userPage = require('./routes/UsersPage');
-const methodOverride = require('method-override');
+
 
 const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
 
 //first try with the env variable, if for some reason it isn't valid go with 3000
 const port = process.env.port || 3000;
@@ -55,8 +60,13 @@ app.get("/", (req,res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Listening on port ${port}...`);
+//run when client connects
+io.on('connection', socket => {
+    console.log("connection");
+});
+
+server.listen(port, () => {
+    console.log(`Server listening on port ${port}...`);
 });
 
 process.on('SIGINT', () => {

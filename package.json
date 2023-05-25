@@ -1,14 +1,14 @@
 {
-  "name": "secure-rest-api",
+  "name": "Secure-Realtime-Chat",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Realtime chat with quantum-safe end-to-end encryption",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "sam-mobed",
   "license": "ISC",
   "dependencies": {
     "ejs": "^3.1.9",
@@ -17,6 +17,7 @@
     "method-override": "^3.0.0",
     "mongoose": "^7.1.2",
     "nodemon": "^2.0.22",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "socket.io": "^4.6.1"
   }
 }
