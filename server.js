@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const http = require('http'); //this is actually used by express under the hood, but we need to use it directly in order to use socket.io 
+const path = require('path'); //to remove MIME 
 const socketio = require('socket.io');
 const Users = require('./schemas/User');
 const signupRouter = require('./routes/SignUp');
@@ -17,7 +18,12 @@ const port = process.env.port || 3000;
 //since we are writing all our views with ejs, view engine converts that code to html
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
-app.use("/signup", signupRouter);
+app.use("/signup", signupRouter); //what you see below is to remove MIME error, express treated js files inside client as html
+app.use('/client', express.static(path.join(__dirname, 'client'), {
+    setHeaders: (res, path) => {
+      res.setHeader('Content-Type', 'text/javascript');
+    },
+}));
 app.use("/users", userPage);
 //we set a limit on the size of the JSON payload that can be parsed by middleware
 //this also makes it so any incoming JSOn request can be parsed and made available in req.body
@@ -62,7 +68,11 @@ app.get("/", (req,res) => {
 
 //run when client connects
 io.on('connection', socket => {
-    console.log("connection");
+    console.log("New WebSocket Connection.");
+
+    //broadcast when a user connects, this message should be caught by the client code
+    socket.emit('message', 'Welcome to the quantum-safe end-to-end encrypted chatroom.')
+
 });
 
 server.listen(port, () => {
@@ -85,3 +95,8 @@ process.on('SIGINT', () => {
 //you can try out the API with postman or Insomnia
 //there is also the rest client extension for visual studio code
 //
+
+/* for html files that need it
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="../client/main.js"></script>
+*/
