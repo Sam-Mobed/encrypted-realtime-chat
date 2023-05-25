@@ -68,12 +68,42 @@ app.get("/", (req,res) => {
 
 //run when client connects
 io.on('connection', socket => {
+    //the code below is a little useless, as no one will stay on the index page after logging on, but still.
     console.log("New WebSocket Connection.");
 
-    //broadcast when a user connects, this message should be caught by the client code
-    socket.emit('message', 'Welcome to the quantum-safe end-to-end encrypted chatroom.')
+    //broadcast when a user connects, this message should be caught by the client code (will only be sent to the user who is connecting.)
+    //socket.emit('message', 'Welcome to the quantum-safe end-to-end encrypted chatroom.')
 
+    //broadcast when a user connects, this will emit to everybody except the user that got connected
+    socket.broadcast.emit('message', 'A user has joined the site.');
+
+    //this would broadcast to everybody, those who are already connected and the user connecting
+    //io.emit();
+
+    //runs when client disconnects
+    socket.on('disconnect', () => {
+        io.emit('message', 'A user has left the site.');
+    });
+
+    //listen for chat message
+    socket.on('chatMessage', msg => {
+        io.emit('message', msg);
+        //here we have to store the message in the database. 
+    });
 });
+/*
+WebSocket connections are independent of specific routes in your backend application. 
+Once a WebSocket connection is established, it remains active until the client or server explicitly closes it. 
+The connection is not tied to any specific route or endpoint.
+
+Therefore, I don't need to repeat this code for different routes in the rest of the app. 
+The provided code is sufficient to handle WebSocket connections globally, regardless of the 
+routes defined.
+
+The above code handles WebSocket connections throughout your application. 
+As long as the server is running and the client establishes a WebSocket connection to the server, 
+the code will handle events like client connection, disconnection, and broadcasting messages to connected clients.
+*/
 
 server.listen(port, () => {
     console.log(`Server listening on port ${port}...`);
