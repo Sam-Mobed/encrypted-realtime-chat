@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Users = require('./User'); //not sure it's necessary to import when linking references 
 const Requests = require('./Request'); //but keep them for now
+const slugify = require('slugify');
 
 const messageSchema = new mongoose.Schema({
     sender: {
@@ -55,6 +56,12 @@ const chatroomSchema = new mongoose.Schema({
     admin: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'Users',
+    },
+    slug: {
+        type: String,
+        required: true,
+        unique: true,
+        default: function(){ return slugify(this.name, {lower:true, strict:true})},
     }
 });
 //for the request schema, instead of a boolean, should use another data structure to represent sent, declined, accepted
@@ -62,5 +69,7 @@ const chatroomSchema = new mongoose.Schema({
 
 //I don't need to make custom schema methods. the operations that I want to do:
 //clearning requests, adding member, all can be done through mongoose queries.
+
+//I could add a validation function that would run every time a chatroom is generated and updated, but maybe later.
 
 module.exports = mongoose.model("Chatroom", chatroomSchema);
