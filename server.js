@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Users = require('./schemas/User');
 const signupRouter = require('./routes/SignUp');
 const userPage = require('./routes/UsersPage');
+const methodOverride = require('method-override');
 
 const app = express();
 
@@ -10,6 +11,7 @@ const app = express();
 const port = process.env.port || 3000;
 //since we are writing all our views with ejs, view engine converts that code to html
 app.set('view engine', 'ejs');
+app.use(methodOverride('_method'));
 app.use("/signup", signupRouter);
 app.use("/users", userPage);
 //we set a limit on the size of the JSON payload that can be parsed by middleware

@@ -61,11 +61,68 @@ router.get('/:username', async (req,res) => {
         res.status(400).send('Wrong password.');
     }
 
-}).delete(async (req,res) => {
-    //if a user wants to leave a chatroom, check how youtube video does it. 
 });
-//and then we would have /:username/CreateChatRoom
-//and also /:username/:chatRoom
-//don't think we'll need query parameters here. 
+
+//when you click on a link, it only does a GET request
+//forms only allow POST or GET
+//so in order to use delete as a method for our form, we need to use a library called method override
+//and it will allow us to do more than just POST/GET
+
+//inside the ejs, you might want to setup the delete with a link element <a> with href, but that's a GET route,
+//and when google crawls your site it automatically clicks every single link tags. so if we use this approach
+//google will delete all the user's chatrooms each time he goes on that site
+router.put('/:username/:id/leave', async (req,res) => {
+    //inside the ejs, the delete button must store chatroom.id
+    //inside here we will go inside user's chatrooms, and remove the id
+    //we will also go inside the chatroom itself, and remove user as one if it's members.
+    //we check if the user is also the admin, and remove him from that as well.
+    const user = await Users.findOne({ username: req.params.username}).exec();
+    user.chatrooms.pull(req.params.id);
+    await user.save();
+    const chatroom = await Chatroom.findOne({ _id: req.params.id}).select('members admin').exec();
+    
+    chatroom.members.pull(user._id);
+
+    //admin is an ID
+    if (user._id.equals(chatroom.admin)){
+        chatroom.admin = undefined; //not good practice but leave it for now.
+    }
+    await chatroom.save();
+
+    res.status(200).redirect(`/users/${req.params.username}`);
+});
+
+//this is likely not the proper way to go about this, but just leave it as is for now
+//these definitely need to be in their own files and have their own router.
+router.put('/:username/:requestId/accept', async (req,res) => {
+    const user = await Users.findOne({ username: req.params.username}).exec();
+    user.requests.pull(req.params.requestId);
+
+    const thisrequest = await Requests.findOne({ _id: req.params.requestId}).exec();
+    //don't savev yet, we have to add one to chatroom field
+
+    user.chatrooms.push(thisrequest.from);
+    await user.save();
+
+    thisrequest.status = true;
+    await thisrequest.save();
+
+    const chatroom = await Chatroom.findOne({ _id: thisrequest.from}).select('members').exec();
+
+    chatroom.members.push(user._id);
+    await chatroom.save();
+
+    res.status(200).redirect(`/users/${req.params.username}`);
+});
+
+router.put('/:username/:requestId/decline', async (req,res) => {
+    const user = await Users.findOne({ username: req.params.username}).select('requests').exec();
+    user.requests.pull(req.params.requestId);
+    await user.save();
+
+    await Requests.findByIdAndDelete(req.params.requestId);
+
+    res.status(200).redirect(`/users/${req.params.username}`);
+});
 
 module.exports = router;

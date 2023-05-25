@@ -71,5 +71,7 @@ const chatroomSchema = new mongoose.Schema({
 //clearning requests, adding member, all can be done through mongoose queries.
 
 //I could add a validation function that would run every time a chatroom is generated and updated, but maybe later.
+//for the default value of slug, we use a normal function, as arrow functions do not bund their own 'this' value,
+//so this.name would be undefined.
 
 module.exports = mongoose.model("Chatroom", chatroomSchema);

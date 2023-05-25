@@ -21,3 +21,14 @@ once you are logged in, after signup or login, anywhere you go you have /users/:
 to login again
 
 make sure only necessary operations are async (doesnt really matter, should still work as expected)
+
+every time a user leaves the room, accepts or declines request. all the operations relating to the database are done 
+in the callback function of the HTTP request. for some of these operations, like joining a group. this makes sense.\
+but for other operations like declining a request and so on, it doesn't make sense to do the operation directly in the 
+callback function. the changes should be cached somewhere, and done later on, like when the user exits the site.
+
+schemas should have validation functions
+
+there should be cleanup for the database, so chatrooms with no members and no admins get deleted off the database.
+
+there should probably be a proper logging system. 

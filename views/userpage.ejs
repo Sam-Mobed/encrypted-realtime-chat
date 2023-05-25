@@ -21,8 +21,10 @@
                         <div class="card-subtitle text-muted mb-2"> 
                             <%= chatroom.createdAt.toLocaleDateString() %>
                         </div>
-                        <a href="">Start Chatting</a>
-                        <button class="btn btn-danger">Leave Room</button>
+                        <a href="<%= url %>/<%= chatroom.slug %>" class="btn btn-primary">Start Chatting</a>
+                        <form action="<%= url %>/<%= chatroom.id %>/leave?_method=PUT" method="POST" class="d-inline">
+                            <button class="btn btn-danger">Leave Room</button>
+                        </form>
                     </div>
                 </div>
             <% }) %>
@@ -38,8 +40,12 @@
                 <div class="card-body">
                     <h4 class="card-title"> <%= request.from.name %> </h4>
                 </div>
-                <a href="">Accept</a>
-                <button class="btn btn-danger">Decline</button>
+                <form action="<%= url %>/<%= request.id %>/accept?_method=PUT" method="POST" class="d-inline">
+                    <button class="btn btn-success">Accept</button>
+                </form>
+                <form action="<%= url %>/<%= request.id %>/decline?_method=PUT" method="POST" class="d-inline">
+                    <button class="btn btn-danger">Decline</button>
+                </form>
             </div>
             <% }) %>
         <% }else{ %>
