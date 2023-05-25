@@ -47,13 +47,13 @@ router.get('/', async (req,res) => {
     //i think this will cause problems
     
     //am I properly storing the reference to a user?
-    const creatorId = await Users.findOne({ username: req.params.username}).select('_id').exec();
+    const creator = await Users.findOne({ username: req.params.username}).exec();
     
     const newRoom = await Chatroom.create({
         name: req.body.name,
         password: req.body.password,
-        members: [creatorId],
-        admin: creatorId,
+        members: [creator._id],
+        admin: creator._id,
     });
 
     if (invitedParsed.length!==0){
@@ -75,6 +75,8 @@ router.get('/', async (req,res) => {
     }
     //in a real app we would have to check if the users actually exist, or if multiple requests are sent to the same user 
     await newRoom.save();
+    creator.chatrooms.push(newRoom);
+    await creator.save();
     //now we send text, but we should be redirecting the user to the new room
     res.status(200).send('Room created successfully.');
 });

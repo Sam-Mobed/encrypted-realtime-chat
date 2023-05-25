@@ -47,7 +47,7 @@ router.get("/", (req,res) => {
                     username: req.body.username,
                     password: req.body.password,
                 });
-                res.status(200).send("User created successfully."); //instead of send we have to redirect user to his homepage
+                res.status(200).redirect(`/users/${req.body.username}`);
             } catch (error){
                 console.error("Error creating user: ", error); 
                 res.status(500).send("Server error occurred");

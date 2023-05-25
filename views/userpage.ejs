@@ -21,10 +21,10 @@
                         <%= chatroom.createdAt.toLocaleDateString() %>
                     </div>
                     <div class="card-subtitle text-muted mb-2"> 
-                        <%= chatroom.admin %>
+                        Admin: <%= chatroom.admin %>
                     </div>
                     <a href="">Start Chatting</a>
-                    <button onclick="leaveRoom('<% `${url}?` %>')">Leave Room</button>
+                    <button class="btn btn-danger">Leave Room</button>
                 </div>
             </div>
         <% }) %>
@@ -37,7 +37,7 @@
                 <h4 class="card-title"> <%= request.name %> </h4>
             </div>
             <a href="">Accept</a>
-            <button>Decline</button>
+            <button class="btn btn-danger">Decline</button>
         </div>
         <% }) %>
 
@@ -60,16 +60,5 @@
             <a href="<%= `${url}/createPage` %>">Create a Chatroom</a>
         </div>
     </div>
-
-    <script>
-        function leaveRoom(url, roomName){
-            fetch(url, {
-                method: 'DELETE',
-                body: {
-                    roomname: roomName,
-                },
-            });
-        }
-    </script>
 </body>
 </html>

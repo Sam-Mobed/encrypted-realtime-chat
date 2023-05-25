@@ -40,13 +40,13 @@ app.get("/", (req,res) => {
     //lookup user, if he doesnt exist throw error
     //check passwords, if they don't match throw error
     
-    const user = await Users.find({ username: req.body.username}).exec();
+    const user = await Users.findOne({ username: req.body.username}).exec();
     
-    if (user.length===0){
+    if (user==null){
         res.status(400).send("No user was found with this username. Try again or sign up.");
     }else{
-        if(user[0].password===req.body.password){
-            res.status(200).send("User authorized."); //if it works redirect him to homepage instead
+        if(user.password===req.body.password){
+            res.status(200).redirect(`/users/${req.body.username}`);
         } else {
             res.status(400).send("Wrong Password");
         }
