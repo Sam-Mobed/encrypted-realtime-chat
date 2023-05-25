@@ -13,33 +13,38 @@
     <div class="container">
         <h1 class="mb-4">Your Chatrooms</h1>
 
-        <% chatrooms.forEach(chatroom => { %>
+        <% if(chatrooms.length!==0){ %>
+            <% chatrooms.forEach(chatroom => { %>
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title"> <%= chatroom.name %> </h4>
+                        <div class="card-subtitle text-muted mb-2"> 
+                            <%= chatroom.createdAt.toLocaleDateString() %>
+                        </div>
+                        <a href="">Start Chatting</a>
+                        <button class="btn btn-danger">Leave Room</button>
+                    </div>
+                </div>
+            <% }) %>
+        <% }else{ %>
+            <div>You have no chatrooms!</div>
+        <% } %>
+        
+        <h3 class="mb-4">Your Requests</h3>
+        
+        <% if(requests.length!==0){ %>
+            <% requests.forEach(request => { %>
             <div class="card mt-4">
                 <div class="card-body">
-                    <h4 class="card-title"> <%= chatroom.name %> </h4>
-                    <div class="card-subtitle text-muted mb-2"> 
-                        <%= chatroom.createdAt.toLocaleDateString() %>
-                    </div>
-                    <div class="card-subtitle text-muted mb-2"> 
-                        Admin: <%= chatroom.admin %>
-                    </div>
-                    <a href="">Start Chatting</a>
-                    <button class="btn btn-danger">Leave Room</button>
+                    <h4 class="card-title"> <%= request.from.name %> </h4>
                 </div>
+                <a href="">Accept</a>
+                <button class="btn btn-danger">Decline</button>
             </div>
-        <% }) %>
-        
-        <h2 class="mb-4">Your Requests</h2>
-
-        <% requests.forEach(request => { %>
-        <div class="card mt-4">
-            <div class="card-body">
-                <h4 class="card-title"> <%= request.name %> </h4>
-            </div>
-            <a href="">Accept</a>
-            <button class="btn btn-danger">Decline</button>
-        </div>
-        <% }) %>
+            <% }) %>
+        <% }else{ %>
+            <div>You have no requests!</div>
+        <% } %>
 
         <div class="container">
             <div class="row justify-content-center" style="max-width: 500px; padding: 20px;">

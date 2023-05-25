@@ -3,6 +3,7 @@ const router = express.Router();
 const Users = require('../schemas/User');
 const createRouter = require('./createRoom');
 const Chatroom = require('../schemas/Chatroom');
+const Requests = require('../schemas/Request');
 
 //I guess i need these? logically they should only be on server.js but w/o them here it might not work.
 router.use(express.json({ limit: "100mb"}));
@@ -16,10 +17,23 @@ router.get('/:username', async (req,res) => {
         const chatrooms = user.chatrooms; //will i be to properly access the fields of chatroom inside ejs?
         const requests = user.requests; //both of these are arrays
         const url = `http://localhost:3000/users/${req.params.username}`; //used twice, make sure it works for both in ejs view
+        
+        //need the chatroom name, createdAt and admin
+        //we need to add slugs to chatrooms so when we go to that url it's not the ugly id in the url.
 
-        res.status(200).render('../views/userpage.ejs', { chatrooms: chatrooms, requests: requests, url: url});
+        let roomArray=[];
+        if (chatrooms.length!==0){
+            roomArray = await Chatroom.find({ _id: { $in: chatrooms } }).exec();
+        }
+
+        let populatedRequests=[]; //this will populate the reference area of From with actual chatroom object
+        if (requests.length!==0){
+            populatedRequests = await Requests.find({ _id: { $in: requests } }).populate('from').exec();
+        }
+        
+        res.status(200).render('../views/userpage.ejs', { chatrooms: roomArray, requests: populatedRequests, url: url});
     } catch (e) {
-        res.status(500).send("Server side error");
+        res.status(500).send("Server side error: " + e);
     }
 }).post('/:username', async (req,res) => {
     //the user enters the name and password of a server to try and join
