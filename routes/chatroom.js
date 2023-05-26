@@ -9,6 +9,7 @@ router.get('/', async (req,res) => {
     try{
         const chatroomSlug = req.params.roomSlug;
         const chatroom = await Chatroom.findOne({ slug: chatroomSlug }).populate('logs').exec(); //will return an array to us
+        
         //the array's first element should be the oldest message, and last element should be newest message
         //but just selecting the logs is not enough, because it's an array of message id's
         //we need to populate the array with the actual message objects (content, sender, sentAt)
@@ -16,7 +17,7 @@ router.get('/', async (req,res) => {
 
         res.status(200).render('../views/chatroom.ejs', { logs: chatroom.logs, roomName: chatroom.name, url: url});
     } catch (err) {
-        res.status(500).send("Server side error: " + e);
+        res.status(500).send("Server side error: " + err);
     }
 });
 

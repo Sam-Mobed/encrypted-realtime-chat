@@ -78,7 +78,7 @@ router.get('/', async (req,res) => {
     creator.chatrooms.push(newRoom);
     await creator.save();
     //now we send text, but we should be redirecting the user to the new room
-    res.status(200).send('Room created successfully.');
+    res.status(200).redirect(`http://localhost:3000/users/${req.params.username}`);
 });
 
 module.exports = router;
