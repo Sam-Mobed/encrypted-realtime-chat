@@ -104,6 +104,7 @@ io.on('connection', socket => {
         //send user and room info to the client, so it can be displayed to appropriate room
         io.to(botMessage.chatroom).emit('roomUsers', {
             users: activeChatters,
+            chatroom: botMessage.chatroom,
         });
     });
 

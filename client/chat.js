@@ -1,6 +1,7 @@
 const socket = io();
 const messagesContainer = document.querySelector('.chat-messages');
 const userList = document.getElementById('users'); //the container that has the list of active users
+const roomName = document.getElementById('room-name');
 
 //the space where user types a message is a form, so we need to retrieve the content
 const chatForm = document.getElementById('chat-form');
@@ -11,8 +12,9 @@ const currentUrl = window.location.pathname; // "/users/:username/:chatroom"
 const urlParts = currentUrl.split('/'); // ["", "users", "username", "chatroom"]
 
 //get room info and users, userObj contains the array
-socket.on('roomUsers', ({ usersObj }) => {
-    outputUsers(usersObj.users);
+socket.on('roomUsers', ({ room, users}) => {
+    outputUsers(users);
+    outputRoomName(room);
 });
 
 //once the server receives a message from one of the users, it emits it back to everyone
@@ -91,4 +93,8 @@ function outputUsers(users){
     userList.innerHTML = `
         ${users.map(user => `<li>${user}</li>`).join('')}
     `;
+}
+
+function outputRoomName(name){
+    roomName.innerText = name;
 }
