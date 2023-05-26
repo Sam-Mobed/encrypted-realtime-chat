@@ -21,6 +21,12 @@ const port = process.env.port || 3000;
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
 app.use("/signup", signupRouter); //what you see below is to remove MIME error, express treated js files inside client as html
+app.use(express.static(__dirname + '/views/styles'));
+app.use('/styles', express.static(path.join(__dirname, 'views', 'styles'), {
+    setHeaders: (res, path) => {
+      res.setHeader('Content-Type', 'text/css');
+    },
+})); //setup static file servers
 app.use('/client', express.static(path.join(__dirname, 'client'), {
     setHeaders: (res, path) => {
       res.setHeader('Content-Type', 'text/javascript');
@@ -71,7 +77,7 @@ app.get("/", (req,res) => {
 const botName = "ChatBot";
 //run when client connects
 io.on('connection', socket => {
-    //the code below is a little useless, as no one will stay on the index page after logging on, but still.
+    //the code below is a little useless, as no one will stay on the index page after logging on, but still
     console.log("New WebSocket Connection.");
     
     //how do we keep track of this for each room, can we keep it here?
