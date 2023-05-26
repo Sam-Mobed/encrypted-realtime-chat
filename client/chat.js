@@ -1,5 +1,6 @@
 const socket = io();
 const messagesContainer = document.querySelector('.chat-messages');
+const userList = document.getElementById('users'); //the container that has the list of active users
 
 //the space where user types a message is a form, so we need to retrieve the content
 const chatForm = document.getElementById('chat-form');
@@ -8,6 +9,11 @@ const chatForm = document.getElementById('chat-form');
 //is by breaking down the URL. probably not the best approach, but it will do for now.
 const currentUrl = window.location.pathname; // "/users/:username/:chatroom"
 const urlParts = currentUrl.split('/'); // ["", "users", "username", "chatroom"]
+
+//get room info and users, userObj contains the array
+socket.on('roomUsers', ({ usersObj }) => {
+    outputUsers(usersObj.users);
+});
 
 //once the server receives a message from one of the users, it emits it back to everyone
 socket.on('message', message => {
@@ -21,10 +27,18 @@ socket.on('message', message => {
 socket.emit('joinRoom',  {
         sender: "ChatBot",
         chatroom: urlParts[3],
+        user: urlParts[2],
         content: `${urlParts[2]} has joined the room!`,
         sentAt: new Date(),
     }
 );
+
+socket.on('disconnect', () => {
+    socket.emit('userLeft', {
+        username: urlParts[2],
+        chatroom: urlParts[3],
+    });
+});
 
 //message submit 
 chatForm.addEventListener('submit', (event) => {
@@ -35,6 +49,7 @@ chatForm.addEventListener('submit', (event) => {
         sender: urlParts[2],
         chatroom: urlParts[3],
         content: event.target.elements.msg.value,
+        sentAt: new Date(),
     };
     
     //we emit the message as the payload to the server
@@ -67,4 +82,13 @@ function renderMessage(msg){
 
     //find the container and add the created div
     messagesContainer.appendChild(div);
+}
+
+//again we have to do DOM manipulation to dynamically load the users that are active in the chatroom
+//something that can't be done with EJS which becomes static when served to the client
+function outputUsers(users){
+    //we turn array into a string and outputting it
+    userList.innerHTML = `
+        ${users.map(user => `<li>${user}</li>`).join('')}
+    `;
 }

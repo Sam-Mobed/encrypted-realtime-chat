@@ -8,7 +8,7 @@ const messageSchema = new mongoose.Schema({
     },
     sentAt: {
         type: Date,
-        default: new Date(),
+        //default: new Date(), no need for default anymore
         immutable: true,
     },
     chatroom: {
