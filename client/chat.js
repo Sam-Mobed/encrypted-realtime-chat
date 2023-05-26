@@ -1,14 +1,13 @@
 const socket = io();
 const messagesContainer = document.querySelector('.chat-messages');
 
-//get username and roomSlug from URL
-//we will send this info to the server, which will generate the msg object and store it in the DB
-//const { username, room } = qs.parse
-//WE NEED TO MAKE IT SO WHEN A USER SIGNS IN THE PATH CONTAINS QUERY STRINGS AND NOT DYNAMIC PARAMS?
-//OR WE GOOD LIKE THIS?
-
 //the space where user types a message is a form, so we need to retrieve the content
 const chatForm = document.getElementById('chat-form');
+
+//since we use route parameters for dynamic routes, and not query strings, one way to access which user sends the msg to which chatroom
+//is by breaking down the URL. probably not the best approach, but it will do for now.
+const currentUrl = window.location.pathname; // "/users/:username/:chatroom"
+const urlParts = currentUrl.split('/'); // ["", "users", "username", "chatroom"]
 
 //once the server receives a message from one of the users, it emits it back to everyone
 socket.on('message', message => {
@@ -18,13 +17,26 @@ socket.on('message', message => {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 });
 
+//user joins the room
+socket.emit('joinRoom',  {
+        sender: "ChatBot",
+        chatroom: urlParts[3],
+        content: `${urlParts[2]} has joined the room!`,
+        sentAt: new Date(),
+    }
+);
+
 //message submit 
 chatForm.addEventListener('submit', (event) => {
     event.preventDefault(); // when you submit a form, it automatically submits to a file, we want to stop that from happening 
 
     //to retrieve the text input by ID
-    const msg = event.target.elements.msg.value;
-
+    const msg = {
+        sender: urlParts[2],
+        chatroom: urlParts[3],
+        content: event.target.elements.msg.value,
+    };
+    
     //we emit the message as the payload to the server
     socket.emit('chatMessage', msg);
 
@@ -48,7 +60,9 @@ function renderMessage(msg){
     //add class to the div we created
     div.classList.add('message');
 
-    div.innerHTML = `<p class="meta-info" ${msg.sender} <span>${msg.sentAt}</span></p>
+    div.innerHTML = `<p class="meta-info"> ${msg.sender} 
+    <span>${msg.sentAt.toLocaleDateString(undefined, { hour: 'numeric', minute: 'numeric', month: 'short', day: 'numeric' })}</span>
+    </p>
     <p class="content">${msg.content}</p>`;
 
     //find the container and add the created div
