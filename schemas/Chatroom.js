@@ -1,31 +1,8 @@
 const mongoose = require("mongoose");
 const Users = require('./User'); //not sure it's necessary to import when linking references 
 const Requests = require('./Request'); //but keep them for now
+const Message = require('./Message'); //but keep them for now
 const slugify = require('slugify');
-
-const messageSchema = new mongoose.Schema({
-    sender: {
-        type: String,
-        required: true,
-        immutable: true,
-    },
-    sentAt: {
-        type: Date,
-        default: new Date(),
-        immutable: true,
-    },
-    content: {
-        type: String,
-    },
-    deleted: {
-        type: Boolean,
-        default: false,
-    },
-    isUpdated: {
-        type: Boolean,
-        default: false,
-    },
-});
 
 const chatroomSchema = new mongoose.Schema({
     name: {
@@ -36,7 +13,12 @@ const chatroomSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    logs: [messageSchema],
+    logs: [
+        {
+            type: mongoose.SchemaTypes.ObjectId,
+            ref: 'Message',
+        }
+    ],
     createdAt: {
         type: Date,
         default: new Date(),

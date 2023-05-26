@@ -56,3 +56,4 @@ ejs for template rendering on the front endpoint
 JWT
 crystals kyber + AES + normal hashing(with salt) for passwords and logs
 socket.io
+bootstrap

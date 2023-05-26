@@ -5,8 +5,10 @@ const http = require('http'); //this is actually used by express under the hood,
 const path = require('path'); //to remove MIME 
 const socketio = require('socket.io');
 const Users = require('./schemas/User');
+const Chatroom = require('./schemas/Chatroom');
 const signupRouter = require('./routes/SignUp');
 const userPage = require('./routes/UsersPage');
+const generateAndStoreMsg = require('./genMsgObj');
 
 
 const app = express();
@@ -66,6 +68,7 @@ app.get("/", (req,res) => {
     }
 });
 
+const botName = "ChatBot";
 //run when client connects
 io.on('connection', socket => {
     //the code below is a little useless, as no one will stay on the index page after logging on, but still.
@@ -75,19 +78,21 @@ io.on('connection', socket => {
     //socket.emit('message', 'Welcome to the quantum-safe end-to-end encrypted chatroom.')
 
     //broadcast when a user connects, this will emit to everybody except the user that got connected
-    socket.broadcast.emit('message', 'A user has joined the site.');
+    socket.broadcast.emit('message', generateAndStoreMsg(botName, 'A user has joined the chat.'));
 
     //this would broadcast to everybody, those who are already connected and the user connecting
     //io.emit();
 
     //runs when client disconnects
     socket.on('disconnect', () => {
-        io.emit('message', 'A user has left the site.');
+        io.emit('message', generateAndStoreMsg(botName, 'A user has left the site.'));
     });
 
     //listen for chat message
     socket.on('chatMessage', msg => {
-        io.emit('message', msg);
+        io.emit('message', msg); //but we need to add a date and the name of the sender and send everything back as a JSON
+        //const chatroom = await Chatroom.findOne({ username: req.params.name}).select('logs').exec();
+        //chatroom.logs.push(msg._id); //since we store by ID
         //here we have to store the message in the database. 
     });
 });

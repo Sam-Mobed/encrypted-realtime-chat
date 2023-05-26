@@ -9,3 +9,4 @@
 
 //login.js will generate the JWT that will remain valid for a time and authenticate the user. (by sending the token
 //to the server which will use middleware on it between requests)
+//check if a user has JWT, if he doesn't or wtv generate it for him
