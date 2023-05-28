@@ -51,7 +51,7 @@ router.get("/", (req,res) => {
                     password: hashedPassword,
                 });
                 //create JWT
-                const accessToken = jwt.sign({user: req.body.username}, process.env.ACCESS_TOKEN, { expiresIn: 15});
+                const accessToken = jwt.sign({user: req.body.username}, process.env.ACCESS_TOKEN, { expiresIn: "30m"});
                 res.cookie('jwt', accessToken, { httpOnly: true });
                 res.status(200).redirect(`/users/${req.body.username}`);
             } catch (error){

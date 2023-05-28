@@ -13,7 +13,12 @@ function authenticateToken(req, res, next) {
 
     //403: you have a token, but it's no longer valid
     jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
-        if (err) return res.sendStatus(403);
+        if (err) return res.status(403).redirect("/"); //the user is sent back to the root, has to sign in again
+        if (req.params.username!==user.user) {
+            res.sendStatus(403); //checks if the username in the path matches the one extracted from the JWT token payload.
+            return;
+        }
+        //with the above line, the user can't jump to another user's homepage by changing the URL's path.
         req.user = user; //we don't have any errors, so we can set our user on our request.
         next();
     });

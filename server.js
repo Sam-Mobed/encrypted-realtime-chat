@@ -13,7 +13,7 @@ const Chatroom = require('./schemas/Chatroom');
 const Message = require('./schemas/Message');
 const signupRouter = require('./routes/SignUp');
 const userPage = require('./routes/UsersPage');
-
+const authenticateSocket = require('./middleware/authenticateSocket');
 
 const app = express();
 const server = http.createServer(app);
@@ -78,7 +78,7 @@ app.get("/", (req,res) => {
         //we have to use AES to decrypt req.body.password
         if(await bcrypt.compare(req.body.password, user.password)){
             //generate JWT for user
-            const accessToken = jwt.sign({user: req.body.username}, process.env.ACCESS_TOKEN, { expiresIn: 15}); //sign is going to first take our payload (what we want to serialize), we also pass the secret key
+            const accessToken = jwt.sign({user: req.body.username}, process.env.ACCESS_TOKEN, { expiresIn: "30m"}); //sign is going to first take our payload (what we want to serialize), we also pass the secret key
             //the JWT will be stored as a browser cookie, and to ensure security it is stored as an HTTP-only cookie which cannot be accessed by javascript code and provides some protection
             //again, httpOnly option ensures that the cookie is accessible only by the server and not by JavaScript running on the client-side.
             //this cookie is supposed to be automatically sent back to the server with subsequent requests to the domain name (localhost)
@@ -97,6 +97,7 @@ app.get("/", (req,res) => {
     }
 });
 
+//io.use(authenticateSocket); //setup middleware
 const botName = "ChatBot";
 //we use a dictionary to keep trach of all the active chatrooms, and the users in each chatroom
 const activeRooms = {};
@@ -110,7 +111,7 @@ io.on('connection', socket => {
         
         socket.user = botMessage.user; //we store the username as custom data, to be used on disconnect
         socket.room = botMessage.chatroom;
-        socket.join(botMessage.chatroom); //is this enough?
+        socket.join(botMessage.chatroom); 
         if(!activeRooms[botMessage.chatroom]){
             activeRooms[botMessage.chatroom] = [];
         }
