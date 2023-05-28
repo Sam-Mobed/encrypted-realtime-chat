@@ -75,22 +75,23 @@ app.get("/", (req,res) => {
 });
 
 const botName = "ChatBot";
+//we use a dictionary to keep trach of all the active chatrooms, and the users in each chatroom
+const activeRooms = {};
 //run when client connects
 io.on('connection', socket => {
     //the code below is a little useless, as no one will stay on the index page after logging on, but still
     console.log("New WebSocket Connection.");
     
-    //how do we keep track of this for each room, can we keep it here?
-    activeChatters=[]; //everytime someone joins a room, we push to this, everytime someone leaves, we pull from it
-    //data and computation done inside io.on(...) is isolated to each individual socket connection
-    //therefore by putting the array here, it should be only accessed by a single socket.
     socket.on('joinRoom', botMessage => {
         //by default botMessage contains user joined text.
         
         socket.user = botMessage.user; //we store the username as custom data, to be used on disconnect
         socket.room = botMessage.chatroom;
         socket.join(botMessage.chatroom); //is this enough?
-        activeChatters.push(botMessage.user);
+        if(!activeRooms[botMessage.chatroom]){
+            activeRooms[botMessage.chatroom] = [];
+        }
+        activeRooms[botMessage.chatroom].push(botMessage.user);
         
         //welcome the user who connects
         socket.emit('message', {
@@ -105,7 +106,7 @@ io.on('connection', socket => {
 
         //send user and room info to the client, so it can be displayed to appropriate room
         io.to(botMessage.chatroom).emit('roomUsers', {
-            users: activeChatters,
+            users: activeRooms[botMessage.chatroom],
             chatroom: botMessage.chatroom,
         });
     });
@@ -141,7 +142,18 @@ io.on('connection', socket => {
             sender: botName,
             content: `${socket.user} has left the room.`,
             sentAt: new Date(),
-        });
+        }); //first we send a message that a user has disconnected
+        //then we remove that username from our list that keeps track of online users
+        if (activeRooms[socket.room].length>0){
+            const index = activeRooms[socket.room].indexOf(socket.user);
+            if (index !== -1) {
+                activeRooms[socket.room].splice(index, 1);
+            }
+            io.to(socket.room).emit('roomUsers', {
+                users: activeRooms[socket.room],
+                chatroom: socket.room,
+            }); //then we update the list that is displayed on the website
+        }
     });
 });
 /*
@@ -156,28 +168,6 @@ routes defined.
 The above code handles WebSocket connections throughout your application. 
 As long as the server is running and the client establishes a WebSocket connection to the server, 
 the code will handle events like client connection, disconnection, and broadcasting messages to connected clients.
-
-socket.on('userLeft', ({username,chatroom}) => {
-            console.log("we saw that user left room")
-            //note user is just disconnecting here, he is still a member of the room
-            //we can't just pass the message as a string, we need to send it as an object(with sender, content, sentAt)
-            socket.broadcast.to(chatroom).emit('message', {
-                sender: botName,
-                content: `${username} has left the chat.`,
-                chatroom: chatroom,
-                sentAt: new Date(),
-            });
-            
-            const index = activeChatters.indexOf(username); //remove the user from active chatters. 
-            if (index !== -1) {
-                activeChatters.splice(index, 1);
-            }
-
-            io.to(chatroom).emit('roomUsers', {
-                users: activeChatters,
-            });
-        });
-
 */
 
 server.listen(port, () => {
