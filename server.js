@@ -144,7 +144,7 @@ io.on('connection', socket => {
             sentAt: new Date(),
         }); //first we send a message that a user has disconnected
         //then we remove that username from our list that keeps track of online users
-        if (activeRooms[socket.room].length>0){
+        if (activeRooms[socket.room] && activeRooms[socket.room].length>0){
             const index = activeRooms[socket.room].indexOf(socket.user);
             if (index !== -1) {
                 activeRooms[socket.room].splice(index, 1);
