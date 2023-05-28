@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Users = require('../schemas/User');
+const bcrypt = require('bcrypt');
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: false }));
@@ -41,11 +42,11 @@ router.get("/", (req,res) => {
             res.status(400).send("Password did not meet requirements");
         }else{
             //the eventListener we added in signup.js should prevent the user from inputing two different passwords
-            
-            try{        
+            try{
+                const hashedPassword = await bcrypt.hash(req.body.password, 10);
                 const newUser = await Users.create({
                     username: req.body.username,
-                    password: req.body.password,
+                    password: hashedPassword,
                 });
                 res.status(200).redirect(`/users/${req.body.username}`);
             } catch (error){

@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 const http = require('http'); //this is actually used by express under the hood, but we need to use it directly in order to use socket.io 
 const path = require('path'); //to remove MIME 
@@ -54,23 +55,32 @@ mongoose.connect("mongodb+srv://masdebom:secure12pass13@myapps.vcsyakz.mongodb.n
 app.get("/", (req,res) => {
     try {
         res.status(200).render('index');
-    } catch (e) {
-        res.status(500).send("Server side error");
+    } catch (e){
+        console.log(e);
+        res.status(500).send("Server side error.");
     }
 }).post("/", async (req,res) => {
     //lookup user, if he doesnt exist throw error
     //check passwords, if they don't match throw error
     
     const user = await Users.findOne({ username: req.body.username}).exec();
-    
+
     if (user==null){
         res.status(400).send("No user was found with this username. Try again or sign up.");
-    }else{
-        if(user.password===req.body.password){
+    }
+
+    try{
+        //important to use .compare to be protected from timing attacks
+        //we have to use AES to decrypt req.body.password
+        if(await bcrypt.compare(req.body.password, user.password)){
             res.status(200).redirect(`/users/${req.body.username}`);
+            //generate JWT for user
         } else {
             res.status(400).send("Wrong Password");
         }
+    } catch (e){
+        console.log(e);
+        res.status(500).send("Server side error.");
     }
 });
 

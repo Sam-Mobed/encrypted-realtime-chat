@@ -3,7 +3,7 @@ const router = express.Router({ mergeParams: true}); //should give us access to 
 const Chatroom = require('../schemas/Chatroom');
 
 router.use(express.json({ limit: "100mb"})); //once again not sure why these are necessary inside any other file but server.js
-router.use(express.urlencoded({extended:false}));
+router.use(express.urlencoded({extended:false})); //
 
 router.get('/', async (req,res) => {
     try{
