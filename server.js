@@ -87,6 +87,8 @@ io.on('connection', socket => {
     socket.on('joinRoom', botMessage => {
         //by default botMessage contains user joined text.
         
+        socket.user = botMessage.user; //we store the username as custom data, to be used on disconnect
+        socket.room = botMessage.chatroom;
         socket.join(botMessage.chatroom); //is this enough?
         activeChatters.push(botMessage.user);
         
@@ -134,8 +136,12 @@ io.on('connection', socket => {
     });
 
     socket.once('disconnect', () => {
-        //runs when client disconnects
-        
+        socket.broadcast.to(socket.room).emit('message', 
+        {
+            sender: botName,
+            content: `${socket.user} has left the room.`,
+            sentAt: new Date(),
+        });
     });
 });
 /*

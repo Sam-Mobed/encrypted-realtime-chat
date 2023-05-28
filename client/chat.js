@@ -36,15 +36,6 @@ socket.emit('joinRoom',  {
     }
 );
 
-//socket.on('disconnect', () => {
-window.addEventListener('beforeunload', () => {
-    console.log("user left")
-    socket.emit('userLeft', {
-        username: urlParts[2],
-        chatroom: urlParts[3],
-    });
-});
-
 //message submit 
 chatForm.addEventListener('submit', (event) => {
     event.preventDefault(); // when you submit a form, it automatically submits to a file, we want to stop that from happening 
