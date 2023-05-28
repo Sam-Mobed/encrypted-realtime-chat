@@ -1,8 +1,10 @@
 const express = require("express");
+const bcrypt = require('bcrypt');
 const router = express.Router({ mergeParams: true}); //mergeParams should give me access to :username from the parent router
 const Chatroom = require('../schemas/Chatroom');
 const Users = require('../schemas/User');
 const Requests = require('../schemas/Request');
+const authenticateToken = require('../middleware/authenticateToken');
 
 //this function should be middleware, it's used in multiple files. keep it like this for now.
 function checkPassword(password){
@@ -17,14 +19,14 @@ router.use(express.json({ limit: "100mb"})); //once again not sure why these are
 router.use(express.urlencoded({extended:false}));
 
 //once the user successfully creates the chatroom, store what's needed in the database and redirect his ass to the chatroom.
-router.get('/', async (req,res) => {
+router.get('/', authenticateToken, async (req,res) => {
     try{
         const url = `http://localhost:3000/users/${req.params.username}`; //for the form action
         res.status(200).render('../views/create.ejs', {url: url});
     } catch (e) {
         res.status(500).send("Server side error");
     }
-}).post('/', async (req,res) => {
+}).post('/', authenticateToken, async (req,res) => {
 
     //we check the password that was submitted
     if (!checkPassword(req.body.password)){
@@ -49,9 +51,10 @@ router.get('/', async (req,res) => {
     //am I properly storing the reference to a user?
     const creator = await Users.findOne({ username: req.params.username}).exec();
     
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newRoom = await Chatroom.create({
         name: req.body.name,
-        password: req.body.password,
+        password: hashedPassword,
         members: [creator._id],
         admin: creator._id,
     });

@@ -1,4 +1,6 @@
+require('dotenv').config();
 const express = require("express");
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const Users = require('../schemas/User');
 const bcrypt = require('bcrypt');
@@ -48,6 +50,9 @@ router.get("/", (req,res) => {
                     username: req.body.username,
                     password: hashedPassword,
                 });
+                //create JWT
+                const accessToken = jwt.sign({user: req.body.username}, process.env.ACCESS_TOKEN, { expiresIn: 15});
+                res.cookie('jwt', accessToken, { httpOnly: true });
                 res.status(200).redirect(`/users/${req.body.username}`);
             } catch (error){
                 console.error("Error creating user: ", error); 

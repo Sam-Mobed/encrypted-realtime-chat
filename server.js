@@ -1,6 +1,9 @@
+require('dotenv').config(); //to load our environment variables.
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser'); //to parse cookies
 const methodOverride = require('method-override');
 const http = require('http'); //this is actually used by express under the hood, but we need to use it directly in order to use socket.io 
 const path = require('path'); //to remove MIME 
@@ -20,6 +23,7 @@ const io = socketio(server);
 const port = process.env.port || 3000;
 //since we are writing all our views with ejs, view engine converts that code to html
 app.set('view engine', 'ejs');
+app.use(cookieParser());
 app.use(methodOverride('_method'));
 app.use("/signup", signupRouter); //what you see below is to remove MIME error, express treated js files inside client as html
 app.use(express.static(__dirname + '/views/styles'));
@@ -73,8 +77,17 @@ app.get("/", (req,res) => {
         //important to use .compare to be protected from timing attacks
         //we have to use AES to decrypt req.body.password
         if(await bcrypt.compare(req.body.password, user.password)){
-            res.status(200).redirect(`/users/${req.body.username}`);
             //generate JWT for user
+            const accessToken = jwt.sign({user: req.body.username}, process.env.ACCESS_TOKEN, { expiresIn: 15}); //sign is going to first take our payload (what we want to serialize), we also pass the secret key
+            //the JWT will be stored as a browser cookie, and to ensure security it is stored as an HTTP-only cookie which cannot be accessed by javascript code and provides some protection
+            //again, httpOnly option ensures that the cookie is accessible only by the server and not by JavaScript running on the client-side.
+            //this cookie is supposed to be automatically sent back to the server with subsequent requests to the domain name (localhost)
+            //we want to put the same user inside of both tokens, so we can easily create a new token from our refresh token
+            //we don't put expiration time on refreshTokens, as it is handled 'manually'
+            //const refreshToken = jwt.sign(req.body.username, process.env.REFRESH_TOKEN);
+            //process.env.REFRESH_TOKEN_val=refreshToken;
+            res.cookie('jwt', accessToken, { httpOnly: true });
+            res.status(200).redirect(`/users/${req.body.username}`);
         } else {
             res.status(400).send("Wrong Password");
         }

@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true}); //should give us access to username and roomSlug 
 const Chatroom = require('../schemas/Chatroom');
+const authenticateToken = require('../middleware/authenticateToken');
 
 router.use(express.json({ limit: "100mb"})); //once again not sure why these are necessary inside any other file but server.js
 router.use(express.urlencoded({extended:false})); //
 
-router.get('/', async (req,res) => {
+router.get('/', authenticateToken, async (req,res) => {
     try{
         const chatroomSlug = req.params.roomSlug;
         const chatroom = await Chatroom.findOne({ slug: chatroomSlug }).populate('logs').exec(); //will return an array to us

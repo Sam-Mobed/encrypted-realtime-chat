@@ -1,7 +1,9 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 const createRouter = require('./createRoom');
 const chatroomRouter = require('./chatroom');
+const authenticateToken = require('../middleware/authenticateToken');
 const Users = require('../schemas/User');
 const Chatroom = require('../schemas/Chatroom');
 const Requests = require('../schemas/Request');
@@ -12,7 +14,7 @@ router.use(express.urlencoded({extended:false}));
 router.use("/:username/createRoom", createRouter); //to handle requests at that endpoint somewhere else.
 router.use("/:username/:roomSlug", chatroomRouter);
 
-router.get('/:username', async (req,res) => {
+router.get('/:username', authenticateToken, async (req,res) => {
     try {
         const user = await Users.findOne({ username: req.params.username}).exec(); //since we use findOne instead of find, shouldn't return an array here
         //not sure whether these are passed properly
@@ -37,7 +39,7 @@ router.get('/:username', async (req,res) => {
     } catch (e) {
         res.status(500).send("Server side error: " + e);
     }
-}).post('/:username', async (req,res) => {
+}).post('/:username', authenticateToken, async (req,res) => {
     //the user enters the name and password of a server to try and join
     //how to accept requests?
     const chatroom = await Chatroom.findOne({ name: req.body.roomname}).exec();
@@ -47,25 +49,23 @@ router.get('/:username', async (req,res) => {
         return;
     }
 
+    try{
+        if(await bcrypt.compare(req.body.password, chatroom.password)){
+            const user = await Users.findOne({ username: req.params.username}).select('_id chatrooms').exec(); 
+            chatroom.members.push(user._id);
+            user.chatrooms.push(chatroom._id);
 
-    if (chatroom.password===req.body.password){
-        const user = await Users.findOne({ username: req.params.username}).select('_id chatrooms').exec(); 
-        chatroom.members.push(user._id);
-        user.chatrooms.push(chatroom._id);
-        
-        try{
             await chatroom.save();
             await user.save();
-        } catch (error){
-            console.log('Failed to save chatroom.');
-            res.status(500);
+
+            res.status(200).redirect(`/users/${req.params.username}`);
+        } else {
+            res.status(400).send("Wrong Password.");
         }
-
-        res.status(200).redirect(`/users/${req.params.username}`);
-    }else{
-        res.status(400).send('Wrong password.');
+    } catch (e){
+        console.log(e);
+        res.status(500).send("Server side error, could not join chatroom.");
     }
-
 });
 
 //when you click on a link, it only does a GET request
@@ -76,7 +76,7 @@ router.get('/:username', async (req,res) => {
 //inside the ejs, you might want to setup the delete with a link element <a> with href, but that's a GET route,
 //and when google crawls your site it automatically clicks every single link tags. so if we use this approach
 //google will delete all the user's chatrooms each time he goes on that site
-router.put('/:username/:id/leave', async (req,res) => {
+router.put('/:username/:id/leave', authenticateToken, async (req,res) => {
     //inside the ejs, the delete button must store chatroom.id
     //inside here we will go inside user's chatrooms, and remove the id
     //we will also go inside the chatroom itself, and remove user as one if it's members.
@@ -99,7 +99,7 @@ router.put('/:username/:id/leave', async (req,res) => {
 
 //this is likely not the proper way to go about this, but just leave it as is for now
 //these definitely need to be in their own files and have their own router.
-router.put('/:username/:requestId/accept', async (req,res) => {
+router.put('/:username/:requestId/accept', authenticateToken, async (req,res) => {
     const user = await Users.findOne({ username: req.params.username}).exec();
     user.requests.pull(req.params.requestId);
 
@@ -120,7 +120,7 @@ router.put('/:username/:requestId/accept', async (req,res) => {
     res.status(200).redirect(`/users/${req.params.username}`);
 });
 
-router.put('/:username/:requestId/decline', async (req,res) => {
+router.put('/:username/:requestId/decline', authenticateToken, async (req,res) => {
     const user = await Users.findOne({ username: req.params.username}).select('requests').exec();
     user.requests.pull(req.params.requestId);
     await user.save();
