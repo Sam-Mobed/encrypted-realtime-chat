@@ -12,9 +12,9 @@ const currentUrl = window.location.pathname; // "/users/:username/:chatroom"
 const urlParts = currentUrl.split('/'); // ["", "users", "username", "chatroom"]
 
 //get room info and users, userObj contains the array
-socket.on('roomUsers', ({ room, users}) => {
+socket.on('roomUsers', ({ chatroom, users}) => {
     outputUsers(users);
-    outputRoomName(room);
+    outputRoomName(chatroom);
 });
 
 //once the server receives a message from one of the users, it emits it back to everyone
@@ -36,7 +36,9 @@ socket.emit('joinRoom',  {
     }
 );
 
-socket.on('disconnect', () => {
+//socket.on('disconnect', () => {
+window.addEventListener('beforeunload', () => {
+    console.log("user left")
     socket.emit('userLeft', {
         username: urlParts[2],
         chatroom: urlParts[3],

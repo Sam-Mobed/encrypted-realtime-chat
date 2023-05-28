@@ -133,25 +133,9 @@ io.on('connection', socket => {
         //here we have to store the message in the database. only store it if it's not coming from chatbot
     });
 
-    //runs when client disconnects
-    socket.on('userLeft', ({username,chatroom}) => {
-        //note user is just disconnecting here, he is still a member of the room
-        //we can't just pass the message as a string, we need to send it as an object(with sender, content, sentAt)
-        socket.broadcast.to(chatroom).emit('message', {
-            sender: botName,
-            content: `${username} has left the chat.`,
-            chatroom: chatroom,
-            sentAt: new Date(),
-        });
+    socket.once('disconnect', () => {
+        //runs when client disconnects
         
-        const index = activeChatters.indexOf(username); //remove the user from active chatters. 
-        if (index !== -1) {
-            activeChatters.splice(index, 1);
-        }
-
-        io.to(chatroom).emit('roomUsers', {
-            users: activeChatters,
-        });
     });
 });
 /*
@@ -166,6 +150,28 @@ routes defined.
 The above code handles WebSocket connections throughout your application. 
 As long as the server is running and the client establishes a WebSocket connection to the server, 
 the code will handle events like client connection, disconnection, and broadcasting messages to connected clients.
+
+socket.on('userLeft', ({username,chatroom}) => {
+            console.log("we saw that user left room")
+            //note user is just disconnecting here, he is still a member of the room
+            //we can't just pass the message as a string, we need to send it as an object(with sender, content, sentAt)
+            socket.broadcast.to(chatroom).emit('message', {
+                sender: botName,
+                content: `${username} has left the chat.`,
+                chatroom: chatroom,
+                sentAt: new Date(),
+            });
+            
+            const index = activeChatters.indexOf(username); //remove the user from active chatters. 
+            if (index !== -1) {
+                activeChatters.splice(index, 1);
+            }
+
+            io.to(chatroom).emit('roomUsers', {
+                users: activeChatters,
+            });
+        });
+
 */
 
 server.listen(port, () => {
