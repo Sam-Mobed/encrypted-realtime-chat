@@ -87,14 +87,14 @@ io.on('connection', socket => {
     socket.on('joinRoom', botMessage => {
         //by default botMessage contains user joined text.
         
-        socket.join(botMessage.user); //is this enough?
+        socket.join(botMessage.chatroom); //is this enough?
         activeChatters.push(botMessage.user);
-
+        
         //welcome the user who connects
         socket.emit('message', {
-            sender: "ChatBot",
+            sender: botName,
             content: "Welcome to the Chatroom!",
-            date: new Date(),
+            sentAt: new Date(),
         });
         
         //broadcast when a user connects, this will emit to everybody except the user that got connected
@@ -136,7 +136,14 @@ io.on('connection', socket => {
     //runs when client disconnects
     socket.on('userLeft', ({username,chatroom}) => {
         //note user is just disconnecting here, he is still a member of the room
-        socket.broadcast.to(chatroom).emit('message', `${username} has left the chat.`);
+        //we can't just pass the message as a string, we need to send it as an object(with sender, content, sentAt)
+        socket.broadcast.to(chatroom).emit('message', {
+            sender: botName,
+            content: `${username} has left the chat.`,
+            chatroom: chatroom,
+            sentAt: new Date(),
+        });
+        
         const index = activeChatters.indexOf(username); //remove the user from active chatters. 
         if (index !== -1) {
             activeChatters.splice(index, 1);

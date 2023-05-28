@@ -19,6 +19,7 @@ socket.on('roomUsers', ({ room, users}) => {
 
 //once the server receives a message from one of the users, it emits it back to everyone
 socket.on('message', message => {
+    message.sentAt = new Date(message.sentAt);
     renderMessage(message); //this message should be an object containing date and name of sender, added by server.
 
     //scroll down every time a new chat is received
@@ -78,7 +79,7 @@ function renderMessage(msg){
     div.classList.add('message');
 
     div.innerHTML = `<p class="meta-info"> ${msg.sender} 
-    <span>${msg.sentAt.toLocaleDateString(undefined, { hour: 'numeric', minute: 'numeric', month: 'short', day: 'numeric' })}</span>
+    <span style="float: right;">${msg.sentAt.toLocaleDateString(undefined, { hour: 'numeric', minute: 'numeric', month: 'short', day: 'numeric' })}</span>
     </p>
     <p class="content">${msg.content}</p>`;
 
