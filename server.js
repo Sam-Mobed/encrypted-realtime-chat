@@ -115,15 +115,22 @@ io.on('connection', socket => {
     console.log("New WebSocket Connection.");
     //on connection, we need to socket.emit public key to the client
     //and then client will emit the encapsulation of the symmetric key, and we will then decapsulate it here using our private key
-    socket.on('establishKey', () => {
+    socket.on('establishKey', ({id}) => {
         const pk_sk = kyber.KeyGen768();
+        const sk = pk_sk[1]; //private key for user
+        sessionKeys[id] = {privateKey: sk}; 
         socket.emit('publicKey', {
            publickey: pk_sk[0], 
         });
     });
 
-    //this means that the client has generated a symmetric key and 
-
+    //this means that the client has generated a symmetric key and is sending us  
+    socket.on('encapsulatedKey', ({cKey, id}) => {
+        //we decapsulate the key and store it in our dictionary
+        const privKey = sessionKeys[id].privateKey;
+        const ss2 = kyber.Decrypt768(cKey,privKey);
+        sessionKeys[id]['symmetricKey'] = ss2;
+    });
     //socket.on('encapKey')
     socket.on('joinRoom', botMessage => {
         //by default botMessage contains user joined text.
