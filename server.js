@@ -2,6 +2,8 @@ require('dotenv').config(); //to load our environment variables.
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto'); //need to generate a sessionID for user who connects
+const kyber = require('crystals-kyber');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser'); //to parse cookies
 const methodOverride = require('method-override');
@@ -13,7 +15,8 @@ const Chatroom = require('./schemas/Chatroom');
 const Message = require('./schemas/Message');
 const signupRouter = require('./routes/SignUp');
 const userPage = require('./routes/UsersPage');
-const authenticateSocket = require('./middleware/authenticateSocket');
+//const authenticateSocket = require('./middleware/authenticateSocket');
+//socketAuthentication needs debugging
 
 const app = express();
 const server = http.createServer(app);
@@ -58,8 +61,12 @@ mongoose.connect("mongodb+srv://masdebom:secure12pass13@myapps.vcsyakz.mongodb.n
 //on index you have the login page.
 app.get("/", (req,res) => {
     try {
+        //we can't set the JWT yet, because user has to get authorization to the site by logging in, but
+        //we need to establish the symmetric key so sensitive info (password) is encrypted before it's sent to the server
+        const sessionId = crypto.randomBytes(16).toString('hex');
+        res.cookie('sessionID', sessionId); //a unique sessionID for each user who connects to the site
         res.status(200).render('index');
-    } catch (e){
+    } catch (e) {
         console.log(e);
         res.status(500).send("Server side error.");
     }
@@ -97,15 +104,27 @@ app.get("/", (req,res) => {
     }
 });
 
-//io.use(authenticateSocket); //setup middleware
+//io.use(authenticateSocket); //setup middleware, needs debugging so for now comment out
 const botName = "ChatBot";
 //we use a dictionary to keep trach of all the active chatrooms, and the users in each chatroom
 const activeRooms = {};
 //run when client connects
+const sessionKeys = {};
 io.on('connection', socket => {
     //the code below is a little useless, as no one will stay on the index page after logging on, but still
     console.log("New WebSocket Connection.");
-    
+    //on connection, we need to socket.emit public key to the client
+    //and then client will emit the encapsulation of the symmetric key, and we will then decapsulate it here using our private key
+    socket.on('establishKey', () => {
+        const pk_sk = kyber.KeyGen768();
+        socket.emit('publicKey', {
+           publickey: pk_sk[0], 
+        });
+    });
+
+    //this means that the client has generated a symmetric key and 
+
+    //socket.on('encapKey')
     socket.on('joinRoom', botMessage => {
         //by default botMessage contains user joined text.
         
