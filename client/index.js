@@ -1,6 +1,8 @@
+import aes from 'aes-encryption'; //require is not available by default on the browser.
 const socket = io();
 const kyber = require('crystals-kyber');
-const AesEncryption = require('aes-encryption');
+//const AesEncryption = require('aes-encryption');
+
 //properly link this client code with index.ejs
 //make sure the symmetric key persists until the user disconnects or closes tab
 //am i importing the necessary packages properly?
@@ -20,7 +22,8 @@ socket.emit('establishKey', {id:sessionId}); //notify server that this socket wa
 socket.on('publicKey', ({publickey}) => {
     const c_ss = kyber.Encrypt768(pk);
     //now we have the symmetric key, which we keep, and it's encapsulation which we send to server
-    ss1=c_ss[1]; 
+    ss1=c_ss[1];
+    console.log(ss1)
     socket.emit('encapsulatedKey', {
         cKey : c_ss[1],
         id: sessionId,

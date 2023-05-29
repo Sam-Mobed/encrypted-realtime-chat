@@ -40,6 +40,18 @@ app.use('/client', express.static(path.join(__dirname, 'client'), {
       res.setHeader('Content-Type', 'text/javascript');
     },
 }));
+app.use('/crystals-kyber', express.static(path.join(__dirname, 'node_modules/crystals-kyber'), {
+    setHeaders: (res, path) => {
+        res.setHeader('Content-Type', 'text/javascript');
+    },
+}));
+  
+app.use('/aes-encryption', express.static(path.join(__dirname, 'node_modules/aes-encryption'), {
+    setHeaders: (res, path) => {
+        res.setHeader('Content-Type', 'text/javascript');
+    },
+}));
+  
 app.use("/users", userPage);
 //we set a limit on the size of the JSON payload that can be parsed by middleware
 //this also makes it so any incoming JSOn request can be parsed and made available in req.body
@@ -130,6 +142,7 @@ io.on('connection', socket => {
         const privKey = sessionKeys[id].privateKey;
         const ss2 = kyber.Decrypt768(cKey,privKey);
         sessionKeys[id]['symmetricKey'] = ss2;
+        console.log(sessionKeys)
     });
     //socket.on('encapKey')
     socket.on('joinRoom', botMessage => {
